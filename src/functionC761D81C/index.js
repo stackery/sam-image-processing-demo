@@ -58,12 +58,10 @@ module.exports = function handler (event, context, callback) {
     })
     .then((outputBuffer) => {
       // Store generated thumbnail to Object Store "Processed Images"
-      // We look up the S3 bucket using the STACKERY_PORTS env var
-      const ports = JSON.parse(process.env.STACKERY_PORTS);
       let params = {
         Body: outputBuffer.toString('binary'),
         Key: `200x200-${objectKey}`,
-        Bucket: ports[0][0].bucket
+        Bucket: process.env.BUCKET_NAME
       };
       return s3.putObject(params).promise();
     })
