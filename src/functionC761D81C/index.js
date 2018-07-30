@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const gm = require('gm').subClass({imageMagick: true});
 const s3 = new AWS.S3();
 
-module.exports = function handler (event, context, callback) {
+module.exports.handler = function (event, context, callback) {
   console.log(event);
 
   let record = event.Records[0];
