@@ -1,11 +1,11 @@
 const AWS = require('aws-sdk');
-const gm = require('gm').subClass({imageMagick: true});
+const gm = require('gm').subClass({ imageMagick: true });
 const s3 = new AWS.S3();
 
-module.exports.handler = function (event, context, callback) {
-  console.log(event);
+module.exports.handler = async message => {
+  console.log(message);
 
-  let record = event.Records[0];
+  let record = message.Records[0];
   if (record.eventName !== 'ObjectCreated:Put') {
     return;
   }
@@ -25,51 +25,52 @@ module.exports.handler = function (event, context, callback) {
   };
 
   // Retrieve image from ObjectStore "Uploaded Images"
-  s3.getObject(params).promise()
-    .then((data) => {
-      return new Promise((resolve, reject) => {
-        imageBuffer = data.Body;
+  console.log(`Retrieving image from ObjectStore 'Uploaded Images'`);
+  let data = await s3.getObject(params).promise();
+  console.log(`Retrieved image from ObjectStore 'Uploaded Images'`);
+  imageBuffer = data.Body;
 
-        // imageMagick create a 200x200 thumbnail
-        gm(imageBuffer)
-          .resize(200, 200)
-          .stream((err, stdout, stderr) => {
-            let chunks = [];
+  // imageMagick create a 200x200 thumbnail
+  let gmPromise = new Promise((resolve, reject) => { 
+    gm(imageBuffer)
+      .resize(200, 200)
+      .stream((err, stdout, stderr) => {
+        let chunks = [];
 
-            stdout.on('data', (chunk) => {
-              chunks.push(chunk);
-            });
+        stdout.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
 
-            stdout.on('end', () => {
-              resolve(Buffer.concat(chunks));
-            });
+        stdout.on('end', () => {
+          resolve(Buffer.concat(chunks));
+        });
 
-            if (err) {
-              console.log(`Error resizing image: ${err}`);
-              reject(err);
-            }
+        if (err) {
+          console.log(`Error resizing image: ${err}`);
+          reject(err);
+        }
 
-            stderr.on('data', function (data) {
-              console.log(`Error resizing image: ${data}`);
-              reject(new Error('Error resizing image'));
-            });
-          });
+        stderr.on('data', function (data) {
+          console.log(`Error resizing image: ${data}`);
+          reject(new Error('Error resizing image'));
+        });
       });
-    })
-    .then((outputBuffer) => {
-      // Store generated thumbnail to Object Store "Processed Images"
-      let params = {
-        Body: outputBuffer.toString('binary'),
-        Key: `200x200-${objectKey}`,
-        Bucket: process.env.BUCKET_NAME
-      };
-      return s3.putObject(params).promise();
-    })
-    .then((response) => {
-      // Done!
-      callback(null, {});
-    })
-    .catch((error) => {
-      callback(error);
-    });
+  });
+
+  console.log(`Creating thumbnail`);
+  let outputBuffer = await gmPromise;
+  console.log(`Created thumbnail`);
+
+  // Store generated thumbnail to Object Store "Processed Images"
+  params = {
+    Body: outputBuffer.toString('binary'),
+    Key: `200x200-${objectKey}`,
+    Bucket: process.env.BUCKET_NAME
+  };
+  console.log(`Storing thumbnailed in Object Store ${process.env.BUCKET_NAME}`);
+  await s3.putObject(params).promise();
+  console.log(`Storedthumbnailed in Object Store ${process.env.BUCKET_NAME}`);
+
+  // Done!
+  return {};
 };
