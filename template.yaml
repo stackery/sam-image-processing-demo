@@ -30,6 +30,8 @@ Resources:
         - AWSXrayWriteOnlyAccess
         - S3CrudPolicy:
             BucketName: !Ref objectStore1DA9B3E1
+        - S3CrudPolicy:
+            BucketName: !Sub ${AWS::StackName}-objectStore17320CBE                 
       Events:
         objectStore17320CBE:
           Type: S3
