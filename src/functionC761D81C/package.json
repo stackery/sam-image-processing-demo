@@ -1,6 +1,9 @@
-{
-  "private": true,
-  "dependencies": {
-    "aws-sdk": "~2"
+  {
+    "name": "ImageProcessor",
+    "version": "",
+    "dependencies": {
+      "aws-sdk": "^2.184.0",
+      "bluebird": "^3.5.0",
+      "gm": "^1.23.0"
+    }
   }
-}
