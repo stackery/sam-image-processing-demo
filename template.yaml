@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
+Description: Stackery Serverless Image Processing Demo
 Resources:
   objectStore17320CBE:
     Type: AWS::S3::Bucket
@@ -31,7 +32,7 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Ref objectStore1DA9B3E1
         - S3CrudPolicy:
-            BucketName: !Sub ${AWS::StackName}-objectStore17320CBE                 
+            BucketName: !Sub ${AWS::StackName}-objectstore17320cbe                 
       Events:
         objectStore17320CBE:
           Type: S3
