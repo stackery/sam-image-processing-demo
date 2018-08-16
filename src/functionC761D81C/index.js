@@ -32,18 +32,18 @@ module.exports.handler = async message => {
   imageBuffer = data.Body;
 
   console.log(`Creating thumbnail`);
-  const outputBuffer = sharp(imageBuffer).resize(200).toBuffer();
+  const outputBuffer = await sharp(imageBuffer).resize(200).toBuffer();
   console.log(`Created thumbnail`);
 
   // Store generated thumbnail to Object Store "Processed Images"
   params = {
-    Body: outputBuffer.toString('binary'),
+    Body: outputBuffer,
     Key: `resized-${objectKey}`,
     Bucket: process.env.BUCKET_NAME
   };
   console.log(`Storing thumbnail in Object Store ${process.env.BUCKET_NAME}`);
-  await s3.putObject(params).promise();
-  console.log(`Stored thumbnailed in Object Store ${process.env.BUCKET_NAME}`);
+  result = await s3.putObject(params).promise();
+  console.log('Stored thumbnail:', result);
 
   return {};
 };
