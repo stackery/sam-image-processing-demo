@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
-const gm = require('gm').subClass({ imageMagick: true });
+const sharp = require('sharp');
+
 const s3 = new AWS.S3();
 
 module.exports.handler = async message => {
@@ -30,47 +31,19 @@ module.exports.handler = async message => {
   console.log(`Retrieved image from ObjectStore 'Uploaded Images'`);
   imageBuffer = data.Body;
 
-  // imageMagick create a 200x200 thumbnail
-  let gmPromise = new Promise((resolve, reject) => { 
-    gm(imageBuffer)
-      .resize(200, 200)
-      .stream((err, stdout, stderr) => {
-        let chunks = [];
-
-        stdout.on('data', (chunk) => {
-          chunks.push(chunk);
-        });
-
-        stdout.on('end', () => {
-          resolve(Buffer.concat(chunks));
-        });
-
-        if (err) {
-          console.log(`Error resizing image: ${err}`);
-          reject(err);
-        }
-
-        stderr.on('data', function (data) {
-          console.log(`Error resizing image: ${data}`);
-          reject(new Error('Error resizing image'));
-        });
-      });
-  });
-
   console.log(`Creating thumbnail`);
-  let outputBuffer = await gmPromise;
+  const outputBuffer = sharp(imageBuffer).resize(200).toBuffer();
   console.log(`Created thumbnail`);
 
   // Store generated thumbnail to Object Store "Processed Images"
   params = {
     Body: outputBuffer.toString('binary'),
-    Key: `200x200-${objectKey}`,
+    Key: `resized-${objectKey}`,
     Bucket: process.env.BUCKET_NAME
   };
-  console.log(`Storing thumbnailed in Object Store ${process.env.BUCKET_NAME}`);
+  console.log(`Storing thumbnail in Object Store ${process.env.BUCKET_NAME}`);
   await s3.putObject(params).promise();
-  console.log(`Storedthumbnailed in Object Store ${process.env.BUCKET_NAME}`);
+  console.log(`Stored thumbnailed in Object Store ${process.env.BUCKET_NAME}`);
 
-  // Done!
   return {};
 };
