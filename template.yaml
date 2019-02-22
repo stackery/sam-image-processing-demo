@@ -28,7 +28,7 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Sub ${AWS::StackName}-uploadedimages
       Events:
-        objectStore17320CBE:
+        uploadedImages:
           Type: S3
           Properties:
             Bucket: !Ref uploadedImages

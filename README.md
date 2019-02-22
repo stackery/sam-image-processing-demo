@@ -16,7 +16,7 @@ Here is an overview of the files:
 .
 ├── README.md                          <-- This README file
 ├── src                                <-- Source code dir for all AWS Lambda functions
-│   └── functionC761D81C               <-- Source code dir for imageProcessor function
+│   └── imageProcessor                 <-- Source code dir for imageProcessor function
 │       ├── package.json               <-- Package dependencies for the function code
 │       └── index.js                   <-- Lambda imageProcessor function code
 └── template.yaml                      <-- SAM infrastructure-as-code template
