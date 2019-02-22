@@ -2,26 +2,20 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: Stackery Serverless Image Processing Demo
 Resources:
-  objectStore17320CBE:
+  uploadedImages:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-objectstore17320cbe
+      BucketName: !Sub ${AWS::StackName}-uploadedimages
     Metadata:
       StackeryName: Uploaded Images
-  objectStore1DA9B3E1:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub ${AWS::StackName}-objectstore1da9b3e1
-    Metadata:
-      StackeryName: Processed Images
-  functionC761D81C:
+  imageProcessor:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-functionC761D81C
+      FunctionName: !Sub ${AWS::StackName}-imageProcessor
       Description: !Sub
         - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
         - ResourceName: imageProcessor
-      CodeUri: src/functionC761D81C
+      CodeUri: src/imageProcessor
       Handler: index.handler
       Runtime: nodejs8.10
       MemorySize: 3008
@@ -30,23 +24,29 @@ Resources:
       Policies:
         - AWSXrayWriteOnlyAccess
         - S3CrudPolicy:
-            BucketName: !Ref objectStore1DA9B3E1
+            BucketName: !Ref processedImages
         - S3CrudPolicy:
-            BucketName: !Sub ${AWS::StackName}-objectstore17320cbe                 
+            BucketName: !Sub ${AWS::StackName}-uploadedimages
       Events:
         objectStore17320CBE:
           Type: S3
           Properties:
-            Bucket: !Ref objectStore17320CBE
+            Bucket: !Ref uploadedImages
             Events:
               - s3:ObjectCreated:*
               - s3:ObjectRemoved:*
       Environment:
         Variables:
-          BUCKET_NAME: !Ref objectStore1DA9B3E1
-          BUCKET_ARN: !GetAtt objectStore1DA9B3E1.Arn
+          BUCKET_NAME: !Ref processedImages
+          BUCKET_ARN: !GetAtt processedImages.Arn
     Metadata:
       StackeryName: imageProcessor
+  processedImages:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-processedimages
+    Metadata:
+      StackeryName: Processed Images
 Parameters:
   StackeryStackTagName:
     Type: String
