@@ -17,8 +17,10 @@ Here is an overview of the files:
 ├── README.md                          <-- This README file
 ├── src                                <-- Source code dir for all AWS Lambda functions
 │   └── imageProcessor                 <-- Source code dir for imageProcessor function
+│       ├── .stackery-config.yaml      <-- Default CLI parameters for this directory
 │       ├── package.json               <-- Package dependencies for the function code
 │       └── index.js                   <-- Lambda imageProcessor function code
+├── .stackery-config.yaml              <-- Default CLI parameters for root directory
 └── template.yaml                      <-- SAM infrastructure-as-code template
 ```
 
