@@ -17,7 +17,7 @@ Resources:
         - ResourceName: imageProcessor
       CodeUri: src/imageProcessor
       Handler: index.handler
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       MemorySize: 3008
       Timeout: 300
       Tracing: Active
